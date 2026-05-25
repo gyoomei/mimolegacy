@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MiMoLegacy — AI Wisdom Vault</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=Nunito:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --font:'Nunito',system-ui,sans-serif;--font-display:'Sora',system-ui,sans-serif;--font-mono:'JetBrains Mono',monospace;
+  --bg:#060810;--panel:#0c0e1a;--panel2:#121428;--panel3:#1a1c32;
+  --text:#f0ece4;--muted:#8a8698;--muted2:#5a5670;
+  --acc:#e8a838;--acc2:#d4882a;--gold:#f0d78c;--teal:#5eead4;--rose:#f472b6;--indigo:#a78bfa;
+  --good:#4ade80;--warn:#fbbf24;--bad:#f87171;
+  --line:rgba(255,255,255,.07);--line2:rgba(255,255,255,.12);
+  --glass:rgba(12,14,26,.78);--glass2:rgba(18,20,40,.65);
+  --shadow:0 8px 32px rgba(0,0,0,.4);
+  --radius:14px;--radius-sm:8px;
+}
+[data-theme="light"]{
+  --bg:#faf8f4;--panel:#ffffff;--panel2:#f5f2ec;--panel3:#ebe7df;
+  --text:#1a1824;--muted:#6b6580;--muted2:#9a94a8;
+  --acc:#b87a20;--acc2:#9a6418;--gold:#8a7020;--teal:#0d9488;--rose:#be185d;--indigo:#6d28d9;
+  --good:#16a34a;--warn:#d97706;--bad:#dc2626;
+  --line:rgba(0,0,0,.08);--line2:rgba(0,0,0,.14);
+  --glass:rgba(255,255,255,.85);--glass2:rgba(245,242,236,.8);
+  --shadow:0 8px 32px rgba(0,0,0,.08);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;min-height:100vh}
+h1,h2,h3,h4,h5{font-family:var(--font-display);font-weight:600;letter-spacing:-.02em}
+
+/* Atmosphere */
+.atmos{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
+.atmos .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.15;animation:drift 22s ease-in-out infinite alternate}
+.orb.o1{width:500px;height:500px;background:radial-gradient(circle,var(--acc),transparent 70%);top:-10%;left:-10%;animation-delay:0s}
+.orb.o2{width:400px;height:400px;background:radial-gradient(circle,var(--indigo),transparent 70%);bottom:-10%;right:-10%;animation-delay:7s}
+.orb.o3{width:350px;height:350px;background:radial-gradient(circle,var(--teal),transparent 70%);top:40%;left:50%;animation-delay:14s}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-30px) scale(1.1)}100%{transform:translate(-20px,50px) scale(.95)}}
+
+/* Grid overlay */
+.grid-overlay{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 70% at 50% 50%,black 30%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse 80% 70% at 50% 50%,black 30%,transparent 100%)}
+
+/* Particles */
+.particles{position:fixed;bottom:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
+.particles span{position:absolute;bottom:-10px;width:4px;height:4px;border-radius:50%;opacity:.4;animation:rise 12s linear infinite}
+.particles span:nth-child(1){left:10%;background:var(--acc);animation-delay:0s;animation-duration:10s}
+.particles span:nth-child(2){left:25%;background:var(--teal);animation-delay:2s;animation-duration:14s}
+.particles span:nth-child(3){left:45%;background:var(--gold);animation-delay:4s;animation-duration:11s}
+.particles span:nth-child(4){left:65%;background:var(--indigo);animation-delay:1s;animation-duration:13s}
+.particles span:nth-child(5){left:80%;background:var(--rose);animation-delay:3s;animation-duration:12s}
+.particles span:nth-child(6){left:90%;background:var(--acc);animation-delay:5s;animation-duration:15s}
+@keyframes rise{0%{transform:translateY(0) scale(1);opacity:.4}50%{opacity:.2}100%{transform:translateY(-100vh) scale(0);opacity:0}}
+
+@media(prefers-reduced-motion:reduce){.atmos .orb,.particles span{animation:none!important}}
+
+/* Layout */
+.app{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 20px}
+
+/* Nav */
+nav{position:sticky;top:0;z-index:100;padding:14px 0;backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);border-bottom:1px solid var(--line)}
+nav .inner{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--acc);display:flex;align-items:center;gap:8px}
+.logo svg{width:28px;height:28px}
+.nav-r{display:flex;align-items:center;gap:8px}
+.pill{background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:6px 14px;font-size:.78rem;color:var(--muted);cursor:pointer;transition:.2s;font-family:var(--font)}
+.pill:hover,.pill.active{background:var(--acc);color:#fff;border-color:var(--acc)}
+.theme-btn,.lang-btn{background:var(--panel2);border:1px solid var(--line);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;transition:.2s;color:var(--text)}
+.theme-btn:hover,.lang-btn:hover{border-color:var(--acc);background:var(--panel3)}
+
+/* Hero */
+.hero{text-align:center;padding:80px 0 40px}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--glass);border:1px solid var(--line);border-radius:20px;padding:6px 16px;font-size:.78rem;color:var(--muted);margin-bottom:20px;backdrop-filter:blur(8px)}
+.hero-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--acc);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{font-size:clamp(2rem,5vw,3.2rem);margin-bottom:16px;background:linear-gradient(135deg,var(--text),var(--acc),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--muted);font-size:1.05rem;max-width:580px;margin:0 auto 28px}
+
+/* Input Card */
+.input-card{background:var(--glass);border:1px solid var(--line);border-radius:var(--radius);padding:28px;backdrop-filter:blur(12px);margin-bottom:32px}
+.input-card h2{font-size:1.3rem;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.input-card h2 span{font-size:1.4rem}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:.82rem;color:var(--muted);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.form-group textarea,.form-group input,.form-group select{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px;color:var(--text);font-family:var(--font);font-size:.95rem;transition:.2s;outline:none}
+.form-group textarea{min-height:120px;resize:vertical}
+.form-group textarea:focus,.form-group input:focus,.form-group select:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(232,168,56,.15)}
+.form-group select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a8698' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+
+.cat-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.cat-pill{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:8px 16px;font-size:.85rem;cursor:pointer;transition:.2s;color:var(--muted);display:flex;align-items:center;gap:6px;font-family:var(--font)}
+.cat-pill:hover,.cat-pill.active{border-color:var(--acc);color:var(--acc);background:rgba(232,168,56,.08)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 28px;border-radius:var(--radius-sm);font-family:var(--font-display);font-weight:600;font-size:.95rem;cursor:pointer;transition:.25s;border:none}
+.btn-primary{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;box-shadow:0 4px 20px rgba(232,168,56,.3)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(232,168,56,.4)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+.btn-secondary:hover{border-color:var(--acc);color:var(--acc)}
+.btn-sm{padding:8px 16px;font-size:.82rem}
+.btn-full{width:100%}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;margin-bottom:24px;background:var(--panel);border-radius:var(--radius-sm);padding:4px;border:1px solid var(--line)}
+.tab{flex:1;padding:10px;text-align:center;border-radius:6px;font-size:.85rem;font-weight:600;cursor:pointer;transition:.2s;color:var(--muted);font-family:var(--font-display)}
+.tab.active{background:var(--acc);color:#fff}
+.tab:not(.active):hover{color:var(--text);background:var(--panel2)}
+
+/* Cards Grid */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;margin-bottom:32px}
+.wisdom-card{background:var(--glass);border:1px solid var(--line);border-radius:var(--radius);padding:24px;backdrop-filter:blur(12px);transition:.3s;position:relative;overflow:hidden}
+.wisdom-card:hover{border-color:var(--acc);transform:translateY(-3px);box-shadow:var(--shadow)}
+.wisdom-card .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.wisdom-card .card-cat{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:4px 10px;border-radius:12px}
+.cat-career{background:rgba(167,139,250,.15);color:var(--indigo)}
+.cat-finance{background:rgba(232,168,56,.15);color:var(--acc)}
+.cat-relationship{background:rgba(244,114,182,.15);color:var(--rose)}
+.cat-health{background:rgba(94,234,212,.15);color:var(--teal)}
+.cat-parenting{background:rgba(251,191,36,.15);color:var(--warn)}
+.cat-general{background:rgba(138,134,152,.15);color:var(--muted)}
+.wisdom-card .card-actions{display:flex;gap:6px}
+.card-action{background:var(--panel);border:1px solid var(--line);border-radius:6px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.8rem;transition:.2s;color:var(--muted)}
+.card-action:hover{border-color:var(--acc);color:var(--acc)}
+.wisdom-card .card-quote{font-size:1.05rem;line-height:1.7;margin-bottom:14px;color:var(--text);font-style:italic;position:relative;padding-left:18px;border-left:3px solid var(--acc)}
+.wisdom-card .card-meta{display:flex;align-items:center;justify-content:space-between;font-size:.75rem;color:var(--muted2)}
+.wisdom-card .card-context{font-size:.82rem;color:var(--muted);margin-top:8px;padding:10px;background:var(--panel);border-radius:var(--radius-sm)}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:32px}
+.stat-card{background:var(--glass);border:1px solid var(--line);border-radius:var(--radius);padding:20px;text-align:center;backdrop-filter:blur(12px)}
+.stat-num{font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--acc)}
+.stat-label{font-size:.82rem;color:var(--muted);margin-top:4px}
+.cat-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.cat-bar-label{font-size:.82rem;color:var(--muted);width:90px;text-align:right}
+.cat-bar-track{flex:1;height:8px;background:var(--panel);border-radius:4px;overflow:hidden}
+.cat-bar-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.cat-bar-count{font-size:.82rem;color:var(--muted);width:30px}
+
+/* Chat */
+.chat-box{background:var(--glass);border:1px solid var(--line);border-radius:var(--radius);backdrop-filter:blur(12px);overflow:hidden;margin-bottom:32px}
+.chat-messages{height:400px;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
+.chat-msg{max-width:85%;padding:12px 16px;border-radius:var(--radius-sm);font-size:.92rem;line-height:1.6}
+.chat-msg.user{align-self:flex-end;background:var(--acc);color:#fff;border-bottom-right-radius:4px}
+.chat-msg.bot{align-self:flex-start;background:var(--panel2);border:1px solid var(--line);border-bottom-left-radius:4px}
+.chat-msg.bot strong{color:var(--acc)}
+.chat-msg .typing{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--muted);margin:0 2px;animation:blink 1.2s infinite}
+.chat-msg .typing:nth-child(2){animation-delay:.2s}
+.chat-msg .typing:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
+.chat-input-row{display:flex;gap:8px;padding:16px;border-top:1px solid var(--line)}
+.chat-input-row input{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 14px;color:var(--text);font-family:var(--font);font-size:.92rem;outline:none}
+.chat-input-row input:focus{border-color:var(--acc)}
+.chat-suggest{display:flex;gap:6px;padding:0 16px 14px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.chat-suggest::-webkit-scrollbar{display:none}
+.suggest-chip{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:6px 14px;font-size:.78rem;color:var(--muted);cursor:pointer;white-space:nowrap;transition:.2s;font-family:var(--font)}
+.suggest-chip:hover{border-color:var(--acc);color:var(--acc)}
+
+/* Empty */
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty .icon{font-size:3rem;margin-bottom:16px;opacity:.5}
+.empty p{font-size:1rem}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--acc);color:#fff;padding:12px 20px;border-radius:var(--radius-sm);font-size:.85rem;font-weight:600;z-index:200;transform:translateY(100px);opacity:0;transition:.3s;font-family:var(--font-display)}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* Modal */
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:150;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:32px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto}
+.modal h3{margin-bottom:16px;font-size:1.2rem}
+.modal .card-preview{background:var(--panel2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:20px;margin-bottom:20px}
+.modal .card-preview .quote{font-size:1rem;font-style:italic;line-height:1.7;border-left:3px solid var(--acc);padding-left:14px;color:var(--text)}
+
+/* Footer */
+footer{text-align:center;padding:40px 0;border-top:1px solid var(--line);margin-top:40px;color:var(--muted);font-size:.82rem}
+footer a{color:var(--acc);text-decoration:none}
+footer a:hover{text-decoration:underline}
+
+/* Responsive */
+@media(max-width:640px){
+  .hero{padding:50px 0 30px}
+  .hero h1{font-size:1.8rem}
+  .input-card{padding:20px}
+  .cards-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .tabs{flex-wrap:wrap}
+  .cat-pills{gap:6px}
+  .cat-pill{padding:6px 12px;font-size:.8rem}
+  nav .inner{gap:8px}
+  .logo{font-size:1rem}
+}
+</style>
+</head>
+<body>
+<div class="atmos"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+<div class="grid-overlay"></div>
+<div class="particles"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<div class="app">
+  <nav>
+    <div class="inner">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        MiMoLegacy
+      </div>
+      <div class="nav-r">
+        <button class="lang-btn" onclick="toggleLang()" title="Language">🌐</button>
+        <button class="theme-btn" onclick="toggleTheme()" title="Theme">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-badge"><span class="dot"></span> <span data-i="heroBadge">Powered by Xiaomi MiMo V2.5</span></div>
+    <h1 data-i="heroTitle">Your Life Wisdom,<br>Preserved Forever</h1>
+    <p data-i="heroSub">Capture hard-earned lessons from experience. Transform raw insights into timeless advice cards. Share wisdom across generations.</p>
+  </section>
+
+  <div class="tabs" id="mainTabs">
+    <div class="tab active" onclick="switchTab('create')" data-i="tabCreate">✍️ Create</div>
+    <div class="tab" onclick="switchTab('vault')" data-i="tabVault">📚 Vault</div>
+    <div class="tab" onclick="switchTab('stats')" data-i="tabStats">📊 Stats</div>
+    <div class="tab" onclick="switchTab('chat')" data-i="tabChat">💬 Reflect</div>
+  </div>
+
+  <!-- CREATE TAB -->
+  <div id="tab-create">
+    <div class="input-card">
+      <h2><span>📝</span> <span data-i="inputTitle">Capture a Life Lesson</span></h2>
+      <div class="form-group">
+        <label data-i="labelWisdom">What did you learn?</label>
+        <textarea id="wisdomInput" data-ph="phWisdom" placeholder="e.g. I learned that saving 30% of income from day one matters more than any investment trick..."></textarea>
+      </div>
+      <div class="form-group">
+        <label data-i="labelCategory">Life Domain</label>
+        <div class="cat-pills" id="catPills">
+          <div class="cat-pill active" data-cat="career" onclick="selectCat('career')">💼 <span data-i="catCareer">Career</span></div>
+          <div class="cat-pill" data-cat="finance" onclick="selectCat('finance')">💰 <span data-i="catFinance">Finance</span></div>
+          <div class="cat-pill" data-cat="relationship" onclick="selectCat('relationship')">❤️ <span data-i="catRelationship">Relationship</span></div>
+          <div class="cat-pill" data-cat="health" onclick="selectCat('health')">🧘 <span data-i="catHealth">Health</span></div>
+          <div class="cat-pill" data-cat="parenting" onclick="selectCat('parenting')">👶 <span data-i="catParenting">Parenting</span></div>
+          <div class="cat-pill" data-cat="general" onclick="selectCat('general')">🌍 <span data-i="catGeneral">General</span></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label data-i="labelContext">Context (optional)</label>
+        <input type="text" id="contextInput" data-ph="phContext" placeholder="e.g. After 10 years in tech industry, learned the hard way...">
+      </div>
+      <button class="btn btn-primary btn-full" id="generateBtn" onclick="generateWisdom()" data-i="btnGenerate">🧠 Transform into Wisdom</button>
+    </div>
+
+    <!-- Generated Result -->
+    <div id="resultArea" style="display:none">
+      <div class="input-card">
+        <h2><span>✨</span> <span data-i="resultTitle">Your Wisdom Card</span></h2>
+        <div id="resultCard" class="card-preview">
+          <div class="quote" id="resultQuote"></div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="saveWisdom()" data-i="btnSave">💾 Save to Vault</button>
+          <button class="btn btn-secondary" onclick="copyWisdom()" data-i="btnCopy">📋 Copy</button>
+          <button class="btn btn-secondary" onclick="regenerate()" data-i="btnRegen">🔄 Regenerate</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VAULT TAB -->
+  <div id="tab-vault" style="display:none">
+    <div id="vaultContent"></div>
+  </div>
+
+  <!-- STATS TAB -->
+  <div id="tab-stats" style="display:none">
+    <div id="statsContent"></div>
+  </div>
+
+  <!-- CHAT TAB -->
+  <div id="tab-chat" style="display:none">
+    <div class="chat-box">
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-msg bot"><strong>MiMo Legacy:</strong> <span data-i="chatWelcome">I'm your wisdom companion. Share a life experience and I'll help you extract the lesson. Or ask me to reflect on wisdom you've already saved.</span></div>
+      </div>
+      <div class="chat-suggest" id="chatSuggest">
+        <div class="suggest-chip" onclick="sendSuggest(this)" data-i="sug1">Help me find the lesson in a failure</div>
+        <div class="suggest-chip" onclick="sendSuggest(this)" data-i="sug2">What wisdom can I pass to my children?</div>
+        <div class="suggest-chip" onclick="sendSuggest(this)" data-i="sug3">Reflect on my saved career wisdom</div>
+        <div class="suggest-chip" onclick="sendSuggest(this)" data-i="sug4">Turn my experience into advice</div>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chatInput" data-ph="phChat" placeholder="Share an experience or ask for reflection..." onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="btn btn-primary btn-sm" onclick="sendChat()">→</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Built with 🧠 <a href="https://github.com/XiaomiMiMo" target="_blank">Xiaomi MiMo V2.5</a> · Submitted to the <a href="https://100t.xiaomimimo.com/" target="_blank">Xiaomi MiMo 100T program</a></p>
+    <p style="margin-top:6px">Your wisdom stays in your browser. No tracking. No server.</p>
+  </footer>
+</div>
+
+<!-- Save Modal -->
+<div class="modal-overlay" id="saveModal">
+  <div class="modal">
+    <h3 data-i="modalTitle">💾 Save Wisdom</h3>
+    <p style="color:var(--muted);margin-bottom:16px;font-size:.9rem" data-i="modalDesc">This wisdom will be saved to your local collection.</p>
+    <div class="card-preview">
+      <div class="quote" id="modalQuote"></div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-primary" onclick="confirmSave()" data-i="btnConfirm">Confirm Save</button>
+      <button class="btn btn-secondary" onclick="closeModal()" data-i="btnCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============ CONFIG ============
+const API_URL = 'https://text.pollinations.ai/openai';
+const MODEL = 'openai';
+const MAX_WISDOM = 50;
+
+// ============ STATE ============
+let lang = localStorage.getItem('mimo-lang') || 'en';
+let theme = localStorage.getItem('mimo-theme') || 'dark';
+let currentCat = 'career';
+let lastGenerated = '';
+let wisdoms = JSON.parse(localStorage.getItem('mimo-wisdoms') || '[]');
+let chatHistory = [];
+
+// ============ I18N ============
+const I18N = {
+  en: {
+    heroBadge: 'Powered by Xiaomi MiMo V2.5',
+    heroTitle: 'Your Life Wisdom,<br>Preserved Forever',
+    heroSub: 'Capture hard-earned lessons from experience. Transform raw insights into timeless advice cards. Share wisdom across generations.',
+    tabCreate: '✍️ Create', tabVault: '📚 Vault', tabStats: '📊 Stats', tabChat: '💬 Reflect',
+    inputTitle: 'Capture a Life Lesson',
+    labelWisdom: 'What did you learn?',
+    phWisdom: 'e.g. I learned that saving 30% of income from day one matters more than any investment trick...',
+    labelCategory: 'Life Domain',
+    catCareer: 'Career', catFinance: 'Finance', catRelationship: 'Relationship',
+    catHealth: 'Health', catParenting: 'Parenting', catGeneral: 'General',
+    labelContext: 'Context (optional)',
+    phContext: 'e.g. After 10 years in tech industry, learned the hard way...',
+    btnGenerate: '🧠 Transform into Wisdom',
+    resultTitle: 'Your Wisdom Card',
+    btnSave: '💾 Save to Vault', btnCopy: '📋 Copy', btnRegen: '🔄 Regenerate',
+    chatWelcome: "I'm your wisdom companion. Share a life experience and I'll help you extract the lesson. Or ask me to reflect on wisdom you've already saved.",
+    phChat: 'Share an experience or ask for reflection...',
+    sug1: 'Help me find the lesson in a failure', sug2: 'What wisdom can I pass to my children?',
+    sug3: 'Reflect on my saved career wisdom', sug4: 'Turn my experience into advice',
+    modalTitle: '💾 Save Wisdom', modalDesc: 'This wisdom will be saved to your local collection.',
+    btnConfirm: 'Confirm Save', btnCancel: 'Cancel',
+    emptyVault: 'Your vault is empty', emptyVaultSub: 'Capture your first life lesson to start building your wisdom collection.',
+    emptyStats: 'No wisdom yet', emptyStatsSub: 'Start capturing lessons to see your wisdom analytics.',
+    totalWisdom: 'Total Wisdom', topCategory: 'Top Domain', thisWeek: 'This Week', categories: 'Domains',
+    toastSaved: '✅ Wisdom saved to vault!', toastCopied: '📋 Copied to clipboard!',
+    toastDeleted: '🗑️ Wisdom removed', toastLimit: '⚠️ Vault full (max 50). Delete some to make room.',
+    allCategories: 'All Categories', deleteConfirm: 'Delete this wisdom?',
+    generating: 'Transforming into wisdom...', errorGen: 'Could not generate wisdom. Please try again.',
+    btnClearAll: '🗑️ Clear All'
+  },
+  id: {
+    heroBadge: 'Didukung Xiaomi MiMo V2.5',
+    heroTitle: 'Hidup Hikmatmu,<br>Terjaga Selamanya',
+    heroSub: 'Tangkap pelajaran berharga dari pengalaman. Ubah wawasan mentah jadi kartu nasihat abadi. Wariskan hikmat lintas generasi.',
+    tabCreate: '✍️ Buat', tabVault: '📚 Koleksi', tabStats: '📊 Statistik', tabChat: '💬 Renungan',
+    inputTitle: 'Tangkap Pelajaran Hidup',
+    labelWisdom: 'Apa yang kamu pelajari?',
+    phWisdom: 'contoh: Aku belajar bahwa menabung 30% penghasilan sejak hari pertama lebih penting dari trik investasi apa pun...',
+    labelCategory: 'Domain Kehidupan',
+    catCareer: 'Karir', catFinance: 'Keuangan', catRelationship: 'Hubungan',
+    catHealth: 'Kesehatan', catParenting: 'Parenting', catGeneral: 'Umum',
+    labelContext: 'Konteks (opsional)',
+    phContext: 'contoh: Setelah 10 tahun di industri tech, belajar dengan cara yang sulit...',
+    btnGenerate: '🧠 Transformasi jadi Hikmat',
+    resultTitle: 'Kartu Hikmatmu',
+    btnSave: '💾 Simpan', btnCopy: '📋 Salin', btnRegen: '🔄 Generate Ulang',
+    chatWelcome: 'Aku teman refleksimu. Ceritakan pengalaman hidup dan aku bantu mengekstrak pelajarannya. Atau minta aku merenungkan hikmat yang sudah kamu simpan.',
+    phChat: 'Ceritakan pengalaman atau minta refleksi...',
+    sug1: 'Bantu aku temukan pelajaran dari kegagalan', sug2: 'Hikmat apa yang bisa aku wariskan ke anak?',
+    sug3: 'Reniungkan hikmat karirku', sug4: 'Ubah pengalamanku jadi nasihat',
+    modalTitle: '💾 Simpan Hikmat', modalDesc: 'Hikmat ini akan disimpan ke koleksi lokal.',
+    btnConfirm: 'Konfirmasi', btnCancel: 'Batal',
+    emptyVault: 'Koleksimu kosong', emptyVaultSub: 'Tangkap pelajaran hidup pertama untuk mulai membangun koleksi hikmat.',
+    emptyStats: 'Belum ada hikmat', emptyStatsSub: 'Mulai tangkap pelajaran untuk lihat analitik hikmat.',
+    totalWisdom: 'Total Hikmat', topCategory: 'Domain Utama', thisWeek: 'Minggu Ini', categories: 'Domain',
+    toastSaved: '✅ Hikmat tersimpan!', toastCopied: '📋 Tersalin!',
+    toastDeleted: '🗑️ Hikmat dihapus', toastLimit: '⚠️ Koleksi penuh (maks 50). Hapus beberapa.',
+    allCategories: 'Semua Kategori', deleteConfirm: 'Hapus hikmat ini?',
+    generating: 'Mentransformasi jadi hikmat...', errorGen: 'Gagal generate hikmat. Coba lagi.',
+    btnClearAll: '🗑️ Hapus Semua'
+  }
+};
+
+function t(k){ return I18N[lang][k] || I18N.en[k] || k; }
+
+// ============ THEME / LANG ============
+function applyTheme(){ document.documentElement.dataset.theme = theme; localStorage.setItem('mimo-theme', theme); }
+function toggleTheme(){ theme = theme==='dark'?'light':'dark'; applyTheme(); }
+function applyLang(){
+  document.querySelectorAll('[data-i]').forEach(el => { el.innerHTML = t(el.dataset.i); });
+  document.querySelectorAll('[data-ph]').forEach(el => { el.placeholder = t(el.dataset.ph); });
+  document.documentElement.lang = lang;
+  localStorage.setItem('mimo-lang', lang);
+}
+function toggleLang(){ lang = lang==='en'?'id':'en'; applyLang(); }
+
+// ============ TABS ============
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach((tab,i) => {
+    tab.classList.toggle('active', ['create','vault','stats','chat'][i]===name);
+  });
+  ['create','vault','stats','chat'].forEach(n => {
+    document.getElementById('tab-'+n).style.display = n===name?'block':'none';
+  });
+  if(name==='vault') renderVault();
+  if(name==='stats') renderStats();
+}
+
+// ============ CATEGORY ============
+function selectCat(cat){
+  currentCat = cat;
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.toggle('active', p.dataset.cat===cat));
+}
+
+// ============ GENERATE ============
+async function generateWisdom(){
+  const text = document.getElementById('wisdomInput').value.trim();
+  if(!text) return;
+  const ctx = document.getElementById('contextInput').value.trim();
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  btn.innerHTML = `<span class="typing"></span><span class="typing"></span><span class="typing"></span> ${t('generating')}`;
+  document.getElementById('resultArea').style.display = 'none';
+
+  const sysPrompt = `You are a wisdom distiller. Transform the user's raw life experience into a polished, timeless piece of wisdom advice. Rules:
+1. Write in second person ("You" perspective)
+2. Keep it concise: 2-4 sentences max
+3. Make it universal — strip specific names, dates, places
+4. Use warm, literary tone — like advice from a wise elder
+5. Include a concrete actionable takeaway
+6. ${lang==='id'?'Write in Indonesian':'Write in English'}
+Category: ${currentCat}`;
+
+  let userMsg = `Raw lesson: "${text}"`;
+  if(ctx) userMsg += `\nContext: ${ctx}`;
+
+  try {
+    const res = await fetch(API_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:MODEL, messages:[{role:'system',content:sysPrompt},{role:'user',content:userMsg}], stream:false}),
+      signal: AbortSignal.timeout(60000)
+    });
+    const data = await res.json();
+    lastGenerated = data.choices?.[0]?.message?.content?.trim() || '';
+    if(!lastGenerated) throw new Error('empty');
+    document.getElementById('resultQuote').textContent = lastGenerated;
+    document.getElementById('resultArea').style.display = 'block';
+    document.getElementById('resultArea').scrollIntoView({behavior:'smooth',block:'center'});
+  } catch(e){
+    // retry once
+    try {
+      const res2 = await fetch(API_URL, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({model:MODEL, messages:[{role:'system',content:sysPrompt},{role:'user',content:userMsg}], stream:false}),
+        signal: AbortSignal.timeout(60000)
+      });
+      const data2 = await res2.json();
+      lastGenerated = data2.choices?.[0]?.message?.content?.trim() || '';
+      if(!lastGenerated) throw new Error('empty');
+      document.getElementById('resultQuote').textContent = lastGenerated;
+      document.getElementById('resultArea').style.display = 'block';
+      document.getElementById('resultArea').scrollIntoView({behavior:'smooth',block:'center'});
+    } catch(e2){
+      toast(t('errorGen'));
+    }
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = t('btnGenerate');
+  }
+}
+
+function regenerate(){
+  if(document.getElementById('wisdomInput').value.trim()) generateWisdom();
+}
+
+// ============ SAVE ============
+function saveWisdom(){
+  if(!lastGenerated) return;
+  if(wisdoms.length >= MAX_WISDOM){ toast(t('toastLimit')); return; }
+  document.getElementById('modalQuote').textContent = lastGenerated;
+  document.getElementById('saveModal').classList.add('open');
+}
+function confirmSave(){
+  const w = {
+    id: Date.now(),
+    text: lastGenerated,
+    raw: document.getElementById('wisdomInput').value.trim(),
+    category: currentCat,
+    context: document.getElementById('contextInput').value.trim(),
+    date: new Date().toISOString()
+  };
+  wisdoms.unshift(w);
+  localStorage.setItem('mimo-wisdoms', JSON.stringify(wisdoms));
+  closeModal();
+  toast(t('toastSaved'));
+  document.getElementById('resultArea').style.display = 'none';
+  document.getElementById('wisdomInput').value = '';
+  document.getElementById('contextInput').value = '';
+}
+function closeModal(){ document.getElementById('saveModal').classList.remove('open'); }
+
+// ============ COPY ============
+function copyWisdom(){
+  if(!lastGenerated) return;
+  navigator.clipboard.writeText(lastGenerated).then(() => toast(t('toastCopied')));
+}
+
+// ============ VAULT ============
+function renderVault(){
+  const el = document.getElementById('vaultContent');
+  if(!wisdoms.length){
+    el.innerHTML = `<div class="empty"><div class="icon">📚</div><p>${t('emptyVault')}</p><p style="margin-top:8px;font-size:.85rem">${t('emptyVaultSub')}</p></div>`;
+    return;
+  }
+  let cats = [...new Set(wisdoms.map(w=>w.category))];
+  let html = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+    <div class="cat-pills" style="margin:0">
+      <div class="cat-pill active" onclick="filterVault('all')">📋 ${t('allCategories')}</div>
+      ${cats.map(c=>`<div class="cat-pill" onclick="filterVault('${c}')">${catIcon(c)} ${t('cat'+c.charAt(0).toUpperCase()+c.slice(1))}</div>`).join('')}
+    </div>
+    <button class="btn btn-secondary btn-sm" onclick="clearAllVault()">${t('btnClearAll')}</button>
+  </div>
+  <div class="cards-grid" id="vaultGrid">`;
+  wisdoms.forEach(w => {
+    html += `<div class="wisdom-card" data-cat="${w.category}">
+      <div class="card-header">
+        <span class="card-cat cat-${w.category}">${catIcon(w.category)} ${t('cat'+w.category.charAt(0).toUpperCase()+w.category.slice(1))}</span>
+        <div class="card-actions">
+          <div class="card-action" onclick="copyCardText(${w.id})" title="Copy">📋</div>
+          <div class="card-action" onclick="deleteWisdom(${w.id})" title="Delete">🗑️</div>
+        </div>
+      </div>
+      <div class="card-quote">${escHtml(w.text)}</div>
+      ${w.context?`<div class="card-context">${escHtml(w.context)}</div>`:''}
+      <div class="card-meta"><span>${formatDate(w.date)}</span><span>${w.raw?'📝':''}</span></div>
+    </div>`;
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+function filterVault(cat){
+  document.querySelectorAll('#tab-vault .cat-pill').forEach(p => p.classList.toggle('active', p.textContent.includes(cat==='all'?t('allCategories'):t('cat'+cat.charAt(0).toUpperCase()+cat.slice(1)))));
+  document.querySelectorAll('#vaultGrid .wisdom-card').forEach(card => {
+    card.style.display = (cat==='all'||card.dataset.cat===cat)?'block':'none';
+  });
+}
+function deleteWisdom(id){
+  if(!confirm(t('deleteConfirm'))) return;
+  wisdoms = wisdoms.filter(w=>w.id!==id);
+  localStorage.setItem('mimo-wisdoms', JSON.stringify(wisdoms));
+  renderVault();
+  toast(t('toastDeleted'));
+}
+function clearAllVault(){
+  if(!confirm(t('deleteConfirm'))) return;
+  wisdoms = [];
+  localStorage.setItem('mimo-wisdoms', JSON.stringify(wisdoms));
+  renderVault();
+  toast(t('toastDeleted'));
+}
+function copyCardText(id){
+  const w = wisdoms.find(x=>x.id===id);
+  if(w) navigator.clipboard.writeText(w.text).then(()=>toast(t('toastCopied')));
+}
+
+// ============ STATS ============
+function renderStats(){
+  const el = document.getElementById('statsContent');
+  if(!wisdoms.length){
+    el.innerHTML = `<div class="empty"><div class="icon">📊</div><p>${t('emptyStats')}</p><p style="margin-top:8px;font-size:.85rem">${t('emptyStatsSub')}</p></div>`;
+    return;
+  }
+  const cats = {};
+  wisdoms.forEach(w => { cats[w.category] = (cats[w.category]||0)+1; });
+  const topCat = Object.entries(cats).sort((a,b)=>b[1]-a[1])[0][0];
+  const weekAgo = Date.now() - 7*24*60*60*1000;
+  const thisWeek = wisdoms.filter(w=>new Date(w.date).getTime()>weekAgo).length;
+  const maxCat = Math.max(...Object.values(cats));
+  const catColors = {career:'var(--indigo)',finance:'var(--acc)',relationship:'var(--rose)',health:'var(--teal)',parenting:'var(--warn)',general:'var(--muted)'};
+
+  let html = `<div class="stats-grid">
+    <div class="stat-card"><div class="stat-num">${wisdoms.length}</div><div class="stat-label">${t('totalWisdom')}</div></div>
+    <div class="stat-card"><div class="stat-num">${t('cat'+topCat.charAt(0).toUpperCase()+topCat.slice(1))}</div><div class="stat-label">${t('topCategory')}</div></div>
+    <div class="stat-card"><div class="stat-num">${thisWeek}</div><div class="stat-label">${t('thisWeek')}</div></div>
+    <div class="stat-card"><div class="stat-num">${Object.keys(cats).length}</div><div class="stat-label">${t('categories')}</div></div>
+  </div>
+  <div class="input-card"><h2><span>📊</span> ${t('categories')}</h2>`;
+  Object.entries(cats).sort((a,b)=>b[1]-a[1]).forEach(([cat,count])=>{
+    html += `<div class="cat-bar">
+      <div class="cat-bar-label">${catIcon(cat)} ${t('cat'+cat.charAt(0).toUpperCase()+cat.slice(1))}</div>
+      <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${(count/maxCat)*100}%;background:${catColors[cat]||'var(--muted)'}"></div></div>
+      <div class="cat-bar-count">${count}</div>
+    </div>`;
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+// ============ CHAT ============
+async function sendChat(){
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if(!msg) return;
+  input.value = '';
+  appendMsg('user', msg);
+  chatHistory.push({role:'user', content:msg});
+
+  // Build context from saved wisdoms
+  let wisdomContext = '';
+  if(wisdoms.length){
+    wisdomContext = '\n\nUser\'s saved wisdom collection:\n' + wisdoms.slice(0,10).map(w=>`- [${w.category}] ${w.text}`).join('\n');
+  }
+
+  const sysPrompt = `You are MiMo Legacy, a warm and insightful wisdom companion. Your role:
+1. Help users extract life lessons from their experiences
+2. Reflect on saved wisdom and find deeper patterns
+3. Suggest how wisdom can be passed to next generation
+4. Ask thoughtful follow-up questions to deepen reflection
+5. ${lang==='id'?'Respond in Indonesian':'Respond in English'}
+Be warm, literary, and wise — like a mentor who has lived many lives.
+Keep responses concise (2-4 paragraphs max).${wisdomContext}`;
+
+  // typing indicator
+  const typingEl = appendMsg('bot', '<span class="typing"></span><span class="typing"></span><span class="typing"></span>', true);
+
+  try {
+    const messages = [{role:'system',content:sysPrompt}, ...chatHistory.slice(-8)];
+    const res = await fetch(API_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:MODEL, messages, stream:false}),
+      signal: AbortSignal.timeout(60000)
+    });
+    const data = await res.json();
+    const reply = data.choices?.[0]?.message?.content?.trim() || t('errorGen');
+    chatHistory.push({role:'assistant', content:reply});
+    typingEl.querySelector('.chat-msg').innerHTML = `<strong>MiMo Legacy:</strong> ${formatReply(reply)}`;
+  } catch(e){
+    typingEl.querySelector('.chat-msg').innerHTML = `<strong>MiMo Legacy:</strong> ${t('errorGen')}`;
+  }
+}
+function sendSuggest(el){
+  document.getElementById('chatInput').value = el.textContent;
+  sendChat();
+}
+function appendMsg(role, html, isTyping){
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.style.maxWidth = '85%';
+  div.style.alignSelf = role==='user'?'flex-end':'flex-start';
+  div.innerHTML = `<div class="chat-msg ${role}">${role==='user'?escHtml(html):html}</div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+function formatReply(text){
+  return escHtml(text).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/`(.*?)`/g,'<code>$1</code>').replace(/\n/g,'<br>');
+}
+
+// ============ UTILS ============
+function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function formatDate(iso){
+  const d = new Date(iso);
+  return d.toLocaleDateString(lang==='id'?'id-ID':'en-US', {month:'short',day:'numeric',year:'numeric'});
+}
+function catIcon(cat){
+  return {career:'💼',finance:'💰',relationship:'❤️',health:'🧘',parenting:'👶',general:'🌍'}[cat]||'📝';
+}
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 2500);
+}
+
+// ============ INIT ============
+applyTheme();
+applyLang();
+</script>
+</body>
+</html>
